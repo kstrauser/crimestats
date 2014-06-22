@@ -21,8 +21,7 @@ def string_to_number(value):
 
 def crime_data():
     """
-    Convert the raw CSV data into usable information. Don't alter the data except to return numbers
-    in "rate per 100,000" instead of raw values.
+    Convert the raw CSV data into usable information.
     """
 
     previous_row = None
@@ -56,12 +55,25 @@ def crime_data():
                 if key not in {'state', 'city'}:
                     row[key] = string_to_number(value)
 
-            # Sanity checking
-            total_violent = sum(row[value] or 0 for value in VIOLENT_COLUMNS)
-            assert row['violent crime'] is None or row['violent crime'] == total_violent, row
+            # Phoenix, AZ did not report aggravated assaults in 2013, so this uses the rate from
+            # 2012 under the assumption that it should be similar.
+            if row['city'] == 'PHOENIX7 ':
+                row['aggravated assault'] = 2411
+                row['violent crime'] = sum(row[value] for value in VIOLENT_COLUMNS)
 
-            total_property = sum(row[value] or 0 for value in PROPERTY_COLUMNS)
-            assert row['property crime'] is None or row['property crime'] == total_property, row
+            # Chicago, IL did not report rapes in 2012 or 2012. This assumes that Chicago has
+            # a similar rate as the rest of the country and multiplies that rate by Chicago's
+            # 2012 population.
+            if row['city'] == 'CHICAGO9':
+                row['rape'] = 485
+                row['violent crime'] = sum(row[value] for value in VIOLENT_COLUMNS)
+
+            # Sanity checking
+            total_violent = sum(row[value] for value in VIOLENT_COLUMNS)
+            assert row['violent crime'] == total_violent, row
+
+            total_property = sum(row[value] for value in PROPERTY_COLUMNS)
+            assert row['property crime'] == total_property, row
 
             row['raw'] = {}
             row['rate'] = {}
