@@ -110,6 +110,8 @@ print_table('Property crime', ['property crime'])
 
 print_table('Violent crime', ['violent crime'])
 
+print_table('Assault and robbery', ['aggravated assault', 'robbery'])
+
 print_table('Rape and murders', ['rape', 'murder'])
 
 print_table('Rape alone', ['rape'])
