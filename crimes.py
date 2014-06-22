@@ -89,31 +89,61 @@ def crime_data():
 
             previous_row = row
 
-def print_table(title, keys):
+cities = list(crime_data())
+
+def print_top_twenty_table(title, keys):
+    """Print a table of the top 20 cities, sorted by the given keys"""
     print '| Rank | City | State | %s rate |' % title
     print '| ---- | ---- | ----- | ------: |'
     sort_func = sum_list_of_columns(keys)
-    top_twenty = sorted(list(crime_data()), key=sort_func, reverse=True)[:20]
-    for rank, row in enumerate(top_twenty, 1):
+    top_twenty = sorted_by(keys, 20)
+    for rank, row in top_twenty:
         print '| %d | %s | %s | %d |' % (
             rank, row['city'], row['state'], sum(row['rate'][key] for key in keys))
     print
 
+def evaluate_city(city_name, state_name):
+    """Print a city's ranking in each of the crime attributes"""
+    count = len([city for city in cities if city['city'] == city_name and city['state'] == state_name])
+    assert count == 1, count
+
+    print 'Rankings for %s, %s:' % (city_name, state_name)
+    print '| Statistic | Rank |'
+    print '| --------- | ---: |'
+    for key in VIOLENT_COLUMNS | PROPERTY_COLUMNS:
+        for rank, row in sorted_by([key]):
+            if row['city'] == city_name and row['state'] == state_name:
+                print '| %s | %d |' % (key, rank)
+                break
+
+    print
+
 def sum_list_of_columns(keys):
+    """Create a function that sums the named columns"""
     def inner(row):
         return sum(row['rate'][key] for key in keys)
     return inner
 
-print_table("TheStreet's", ['property crime', 'violent crime'])
+def sorted_by(keys, max_count=None):
+    """Return a series of cities and their ranks, sorted by the given keys"""
+    sorted_list = sorted(cities, key=sum_list_of_columns(keys), reverse=True)
+    for rank, row in enumerate(sorted_list, 1):
+        yield rank, row
+        if max_count is not None and rank >= max_count:
+            break
 
-print_table('Property crime', ['property crime'])
+print_top_twenty_table("TheStreet's", ['property crime', 'violent crime'])
 
-print_table('Violent crime', ['violent crime'])
+print_top_twenty_table('Property crime', ['property crime'])
 
-print_table('Assault and robbery', ['aggravated assault', 'robbery'])
+print_top_twenty_table('Violent crime', ['violent crime'])
 
-print_table('Rape and murders', ['rape', 'murder'])
+print_top_twenty_table('Assault and robbery', ['aggravated assault', 'robbery'])
 
-print_table('Rape alone', ['rape'])
+print_top_twenty_table('Rape and murders', ['rape', 'murder'])
 
-print_table('Murder alone', ['murder'])
+print_top_twenty_table('Rape alone', ['rape'])
+
+print_top_twenty_table('Murder alone', ['murder'])
+
+evaluate_city('SPRINGFIELD', 'MISSOURI5')
