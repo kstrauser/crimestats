@@ -12,8 +12,6 @@ COLUMNS = ('state', 'city', 'year', 'population', 'violent crime', 'murder', 'ra
            'motor-vehicle-theft', 'arson')
 
 def string_to_number(value):
-    if isinstance(value, int) or value is None:
-        return value
     if not value:
         return None
     value = value.replace(',', '')
@@ -44,6 +42,10 @@ def crime_data():
                 if not row[key]:
                     row[key] = previous_row[key]
 
+            if row['year'] != '2013':
+                previous_row = row
+                continue
+
             # Remove the extra cruft columns
             del row[None]
 
@@ -52,9 +54,7 @@ def crime_data():
                 if key not in {'state', 'city'}:
                     row[key] = string_to_number(value)
 
-            # Only look at 2013's numbers
-            if row['year'] == 2013:
-                yield row
+            yield row
 
             previous_row = row
 
