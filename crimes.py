@@ -89,9 +89,29 @@ def crime_data():
 
             previous_row = row
 
-def alpha_by_city_state(row):
-    return row['city'], row['state']
+def print_table(title, keys):
+    print '| Rank | City | State | %s rate |' % title
+    print '| ---- | ---- | ----- | ------: |'
+    sort_func = sum_list_of_columns(keys)
+    top_twenty = sorted(list(crime_data()), key=sort_func, reverse=True)[:20]
+    for rank, row in enumerate(top_twenty, 1):
+        print '| %d | %s | %s | %d |' % (
+            rank, row['city'], row['state'], sum(row['rate'][key] for key in keys))
+    print
 
+def sum_list_of_columns(keys):
+    def inner(row):
+        return sum(row['rate'][key] for key in keys)
+    return inner
 
-for row in sorted(list(crime_data()), key=alpha_by_city_state):
-    print row
+print_table("TheStreet's", ['property crime', 'violent crime'])
+
+print_table('Property crime', ['property crime'])
+
+print_table('Violent crime', ['violent crime'])
+
+print_table('Rape and murders', ['rape', 'murder'])
+
+print_table('Rape alone', ['rape'])
+
+print_table('Murder alone', ['murder'])
