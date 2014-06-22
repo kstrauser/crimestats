@@ -6,7 +6,7 @@ import os
 # Data was downloaded from http://1.usa.gov/1j19Hpl -
 # "January to June 2013 Offenses Reported to Law Enforcement" -
 # and exported to a CSV file with Numbers 3.2.
-RAW = '~/Downloads/Table_4_January_to_June_2012-2013_Offenses_Reported_to_Law_Enforcement_by_State_by_City.csv'
+RAW = 'Table_4_January_to_June_2012-2013_Offenses_Reported_to_Law_Enforcement_by_State_by_City.csv'
 COLUMNS = ('state', 'city', 'year', 'population', 'violent crime', 'murder', 'rape', 'robbery',
            'aggravated assault', 'property crime', 'burglary', 'larceny-theft',
            'motor-vehicle-theft', 'arson')
