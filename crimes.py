@@ -104,16 +104,21 @@ def print_top_twenty_table(title, keys):
 
 def evaluate_city(city_name, state_name):
     """Print a city's ranking in each of the crime attributes"""
-    count = len([city for city in cities if city['city'] == city_name and city['state'] == state_name])
+    count = len([city for city in cities
+                 if city['city'] == city_name and city['state'] == state_name])
     assert count == 1, count
 
     print 'Rankings for %s, %s:' % (city_name, state_name)
     print '| Statistic | Rank |'
     print '| --------- | ---: |'
-    for key in VIOLENT_COLUMNS | PROPERTY_COLUMNS:
-        for rank, row in sorted_by([key]):
+    single_attributes = [[key] for key in VIOLENT_COLUMNS | PROPERTY_COLUMNS]
+    key_lists = single_attributes[:]
+    key_lists.append(['murder', 'aggravated assault', 'robbery', 'burglary', 'motor-vehicle-theft',
+                      'larceny-theft'])
+    for key_list in key_lists:
+        for rank, row in sorted_by(key_list):
             if row['city'] == city_name and row['state'] == state_name:
-                print '| %s | %d |' % (key, rank)
+                print '| %s | %d |' % (', '.join(key_list), rank)
                 break
 
     print
@@ -147,3 +152,5 @@ print_top_twenty_table('Rape alone', ['rape'])
 print_top_twenty_table('Murder alone', ['murder'])
 
 evaluate_city('SPRINGFIELD', 'MISSOURI5')
+
+evaluate_city('CHICAGO9', 'ILLINOIS')
