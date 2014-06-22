@@ -10,6 +10,8 @@ RAW = '~/Downloads/Table_4_January_to_June_2012-2013_Offenses_Reported_to_Law_En
 COLUMNS = ('state', 'city', 'year', 'population', 'violent crime', 'murder', 'rape', 'robbery',
            'aggravated assault', 'property crime', 'burglary', 'larceny-theft',
            'motor-vehicle-theft', 'arson')
+VIOLENT_COLUMNS = {'murder', 'rape', 'robbery', 'aggravated assault'}
+PROPERTY_COLUMNS = {'burglary', 'larceny-theft','motor-vehicle-theft'}
 
 def string_to_number(value):
     if not value:
@@ -19,8 +21,8 @@ def string_to_number(value):
 
 def crime_data():
     """
-    Convert the raw CSV data into usable information. Don't alter the data at
-    all.
+    Convert the raw CSV data into usable information. Don't alter the data except to return numbers
+    in "rate per 100,000" instead of raw values.
     """
 
     previous_row = None
@@ -53,6 +55,23 @@ def crime_data():
             for key, value in row.items():
                 if key not in {'state', 'city'}:
                     row[key] = string_to_number(value)
+
+            # Sanity checking
+            total_violent = sum(row[value] or 0 for value in VIOLENT_COLUMNS)
+            assert row['violent crime'] is None or row['violent crime'] == total_violent, row
+
+            total_property = sum(row[value] or 0 for value in PROPERTY_COLUMNS)
+            assert row['property crime'] is None or row['property crime'] == total_property, row
+
+            row['raw'] = {}
+            row['rate'] = {}
+            for key, value in row.items():
+                if key in {'state', 'city', 'population', 'year', 'raw', 'rate'}:
+                    continue
+                del row[key]
+                row['raw'][key] = value
+
+                row['rate'][key] = None if value is None else 100000 * value / row['population']
 
             yield row
 
